@@ -24,10 +24,7 @@ export class MglTimelineComponent implements AfterViewInit, OnChanges, OnDestroy
     if (mobile !== this._mobile) {
       this.content && this.content.forEach(entry => entry.mobile = mobile);
     }
-    setTimeout(() => {
-      // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
-      this._mobile = mobile;
-    });
+    this._mobile = mobile;
   }
 
   @HostBinding('class.mobile')
@@ -55,7 +52,7 @@ export class MglTimelineComponent implements AfterViewInit, OnChanges, OnDestroy
   constructor(private elementRef: ElementRef) {}
 
   ngOnChanges(simpleChanges) {
-    this.updateContent();
+    setTimeout(() => this.updateContent());
   }
 
   ngOnDestroy() {
@@ -63,9 +60,11 @@ export class MglTimelineComponent implements AfterViewInit, OnChanges, OnDestroy
   }
 
   ngAfterViewInit() {
-    this.mobile = this.elementRef.nativeElement.clientWidth < 640;
-    setTimeout(() => this.updateContent());
-    this.content.changes.subscribe(() => this.updateContent());
+    setTimeout(() => {
+      this.mobile = this.elementRef.nativeElement.clientWidth < 640;
+      this.updateContent()
+    });
+    this.content.changes.subscribe(() => setTimeout(() => this.updateContent()));
   }
 
   private updateContent() {
@@ -90,6 +89,8 @@ export class MglTimelineComponent implements AfterViewInit, OnChanges, OnDestroy
 
   @HostListener('window:resize')
   onResize(ev: KeyboardEvent) {
-    this.mobile = this.elementRef.nativeElement.clientWidth < 640;
+    setTimeout(() => {
+      this.mobile = this.elementRef.nativeElement.clientWidth < 640;
+    })
   }
 }
