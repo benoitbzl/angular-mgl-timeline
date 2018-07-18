@@ -34,7 +34,11 @@ export class MglTimelineEntryComponent implements AfterViewInit, OnDestroy {
   private _alternate: boolean = false;
 
   set alternate(alternate) {
-    this._alternate = alternate;
+    setTimeout(() => {
+      // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
+      this._alternate = alternate;
+    });
+
     if (this.dot) {
       this.dot.alternate = this._alternate;
     }
@@ -51,7 +55,10 @@ export class MglTimelineEntryComponent implements AfterViewInit, OnDestroy {
   private _mobile: boolean = false;
 
   set mobile(mobile) {
-    this._mobile = mobile;
+    setTimeout(() => {
+      // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
+      this._mobile = mobile;
+    });
     if (this.dot) {
       this.dot.mobile = this._mobile;
     }
