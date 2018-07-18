@@ -392,10 +392,7 @@ class MglTimelineEntryComponent {
      * @return {?}
      */
     set alternate(alternate) {
-        setTimeout(() => {
-            // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
-            this._alternate = alternate;
-        });
+        this._alternate = alternate;
         if (this.dot) {
             this.dot.alternate = alternate;
         }
@@ -414,10 +411,7 @@ class MglTimelineEntryComponent {
      * @return {?}
      */
     set mobile(mobile) {
-        setTimeout(() => {
-            // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
-            this._mobile = mobile;
-        });
+        this._mobile = mobile;
         if (this.dot) {
             this.dot.mobile = mobile;
         }
@@ -562,10 +556,7 @@ class MglTimelineComponent {
         if (mobile !== this._mobile) {
             this.content && this.content.forEach(entry => entry.mobile = mobile);
         }
-        setTimeout(() => {
-            // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
-            this._mobile = mobile;
-        });
+        this._mobile = mobile;
     }
     /**
      * @return {?}
@@ -592,7 +583,7 @@ class MglTimelineComponent {
      * @return {?}
      */
     ngOnChanges(simpleChanges) {
-        this.updateContent();
+        setTimeout(() => this.updateContent());
     }
     /**
      * @return {?}
@@ -604,9 +595,11 @@ class MglTimelineComponent {
      * @return {?}
      */
     ngAfterViewInit() {
-        this.mobile = this.elementRef.nativeElement.clientWidth < 640;
-        setTimeout(() => this.updateContent());
-        this.content.changes.subscribe(() => this.updateContent());
+        setTimeout(() => {
+            this.mobile = this.elementRef.nativeElement.clientWidth < 640;
+            this.updateContent();
+        });
+        this.content.changes.subscribe(() => setTimeout(() => this.updateContent()));
     }
     /**
      * @return {?}
@@ -633,7 +626,9 @@ class MglTimelineComponent {
      * @return {?}
      */
     onResize(ev) {
-        this.mobile = this.elementRef.nativeElement.clientWidth < 640;
+        setTimeout(() => {
+            this.mobile = this.elementRef.nativeElement.clientWidth < 640;
+        });
     }
 }
 MglTimelineComponent.decorators = [

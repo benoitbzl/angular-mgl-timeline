@@ -395,11 +395,7 @@ var MglTimelineEntryComponent = /** @class */ (function () {
          * @return {?}
          */
         set: function (alternate) {
-            var _this = this;
-            setTimeout(function () {
-                // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
-                _this._alternate = alternate;
-            });
+            this._alternate = alternate;
             if (this.dot) {
                 this.dot.alternate = alternate;
             }
@@ -422,11 +418,7 @@ var MglTimelineEntryComponent = /** @class */ (function () {
          * @return {?}
          */
         set: function (mobile) {
-            var _this = this;
-            setTimeout(function () {
-                // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
-                _this._mobile = mobile;
-            });
+            this._mobile = mobile;
             if (this.dot) {
                 this.dot.mobile = mobile;
             }
@@ -540,14 +532,10 @@ var MglTimelineComponent = /** @class */ (function () {
          * @return {?}
          */
         set: function (mobile) {
-            var _this = this;
             if (mobile !== this._mobile) {
                 this.content && this.content.forEach(function (entry) { return entry.mobile = mobile; });
             }
-            setTimeout(function () {
-                // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
-                _this._mobile = mobile;
-            });
+            this._mobile = mobile;
         },
         enumerable: true,
         configurable: true
@@ -575,7 +563,8 @@ var MglTimelineComponent = /** @class */ (function () {
      * @return {?}
      */
     MglTimelineComponent.prototype.ngOnChanges = function (simpleChanges) {
-        this.updateContent();
+        var _this = this;
+        setTimeout(function () { return _this.updateContent(); });
     };
     /**
      * @return {?}
@@ -588,9 +577,11 @@ var MglTimelineComponent = /** @class */ (function () {
      */
     MglTimelineComponent.prototype.ngAfterViewInit = function () {
         var _this = this;
-        this.mobile = this.elementRef.nativeElement.clientWidth < 640;
-        setTimeout(function () { return _this.updateContent(); });
-        this.content.changes.subscribe(function () { return _this.updateContent(); });
+        setTimeout(function () {
+            _this.mobile = _this.elementRef.nativeElement.clientWidth < 640;
+            _this.updateContent();
+        });
+        this.content.changes.subscribe(function () { return setTimeout(function () { return _this.updateContent(); }); });
     };
     /**
      * @return {?}
@@ -618,7 +609,10 @@ var MglTimelineComponent = /** @class */ (function () {
      * @return {?}
      */
     MglTimelineComponent.prototype.onResize = function (ev) {
-        this.mobile = this.elementRef.nativeElement.clientWidth < 640;
+        var _this = this;
+        setTimeout(function () {
+            _this.mobile = _this.elementRef.nativeElement.clientWidth < 640;
+        });
     };
     return MglTimelineComponent;
 }());
