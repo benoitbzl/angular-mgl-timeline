@@ -401,10 +401,10 @@ var MglTimelineEntryComponent = /** @class */ (function () {
                 _this._alternate = alternate;
             });
             if (this.dot) {
-                this.dot.alternate = this._alternate;
+                this.dot.alternate = alternate;
             }
             if (this.side) {
-                this.side.alternate = this._alternate;
+                this.side.alternate = alternate;
             }
         },
         enumerable: true,
@@ -428,10 +428,10 @@ var MglTimelineEntryComponent = /** @class */ (function () {
                 _this._mobile = mobile;
             });
             if (this.dot) {
-                this.dot.mobile = this._mobile;
+                this.dot.mobile = mobile;
             }
             if (this.side) {
-                this.side.mobile = this._mobile;
+                this.side.mobile = mobile;
             }
         },
         enumerable: true,
