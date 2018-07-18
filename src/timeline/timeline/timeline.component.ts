@@ -20,8 +20,11 @@ export class MglTimelineComponent implements AfterViewInit, OnChanges, OnDestroy
   set mobile(mobile: boolean) {
     if (mobile !== this._mobile) {
       this.content && this.content.forEach(entry => entry.mobile = mobile);
-    } 
-    this._mobile = mobile;
+    }
+    setTimeout(() => {
+      // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
+      this._mobile = mobile;
+    });
   }
 
   @HostBinding('class.mobile')
@@ -43,7 +46,7 @@ export class MglTimelineComponent implements AfterViewInit, OnChanges, OnDestroy
 
   private subscriptions: Subscription[] = [];
 
-  @ContentChildren(MglTimelineEntryComponent) 
+  @ContentChildren(MglTimelineEntryComponent)
   private content: QueryList<MglTimelineEntryComponent>;
 
   constructor(private elementRef: ElementRef) {}
