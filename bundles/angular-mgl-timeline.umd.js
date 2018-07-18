@@ -539,10 +539,14 @@ var MglTimelineComponent = /** @class */ (function () {
          * @return {?}
          */
         set: function (mobile) {
+            var _this = this;
             if (mobile !== this._mobile) {
                 this.content && this.content.forEach(function (entry) { return entry.mobile = mobile; });
             }
-            this._mobile = mobile;
+            setTimeout(function () {
+                // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
+                _this._mobile = mobile;
+            });
         },
         enumerable: true,
         configurable: true

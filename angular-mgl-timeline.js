@@ -561,7 +561,10 @@ class MglTimelineComponent {
         if (mobile !== this._mobile) {
             this.content && this.content.forEach(entry => entry.mobile = mobile);
         }
-        this._mobile = mobile;
+        setTimeout(() => {
+            // Prevent ExpressionChangedAfterItHasBeenCheckedError exception
+            this._mobile = mobile;
+        });
     }
     /**
      * @return {?}
