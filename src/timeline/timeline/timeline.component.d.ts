@@ -4,6 +4,7 @@ export declare class MglTimelineComponent implements AfterViewInit, OnChanges, O
     private elementRef;
     toggle: boolean;
     alternate: boolean;
+    start: 'left' | 'right';
     private _mobile;
     mobile: boolean;
     private _focusOnOpen;

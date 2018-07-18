@@ -549,6 +549,7 @@ class MglTimelineComponent {
         this.elementRef = elementRef;
         this.toggle = true;
         this.alternate = true;
+        this.start = 'left';
         this._mobile = false;
         this._focusOnOpen = false;
         this.subscriptions = [];
@@ -621,7 +622,7 @@ class MglTimelineComponent {
                         }
                     }));
                 }
-                entry.alternate = this.alternate ? index % 2 !== 0 : false;
+                entry.alternate = this.alternate ? index % 2 !== (this.start === 'left' ? 0 : 1) : false;
                 entry.mobile = this.mobile;
                 entry.focusOnOpen = this.focusOnOpen;
             });
@@ -680,6 +681,7 @@ MglTimelineComponent.ctorParameters = () => [
 MglTimelineComponent.propDecorators = {
     'toggle': [{ type: Input },],
     'alternate': [{ type: Input },],
+    'start': [{ type: Input },],
     'mobile': [{ type: HostBinding, args: ['class.mobile',] },],
     'focusOnOpen': [{ type: Input },],
     'content': [{ type: ContentChildren, args: [MglTimelineEntryComponent,] },],

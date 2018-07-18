@@ -519,6 +519,7 @@ var MglTimelineComponent = /** @class */ (function () {
         this.elementRef = elementRef;
         this.toggle = true;
         this.alternate = true;
+        this.start = 'left';
         this._mobile = false;
         this._focusOnOpen = false;
         this.subscriptions = [];
@@ -602,7 +603,7 @@ var MglTimelineComponent = /** @class */ (function () {
                         }
                     }));
                 }
-                entry.alternate = _this.alternate ? index % 2 !== 0 : false;
+                entry.alternate = _this.alternate ? index % 2 !== (_this.start === 'left' ? 0 : 1) : false;
                 entry.mobile = _this.mobile;
                 entry.focusOnOpen = _this.focusOnOpen;
             });
@@ -633,6 +634,7 @@ MglTimelineComponent.ctorParameters = function () { return [
 MglTimelineComponent.propDecorators = {
     'toggle': [{ type: Input },],
     'alternate': [{ type: Input },],
+    'start': [{ type: Input },],
     'mobile': [{ type: HostBinding, args: ['class.mobile',] },],
     'focusOnOpen': [{ type: Input },],
     'content': [{ type: ContentChildren, args: [MglTimelineEntryComponent,] },],
