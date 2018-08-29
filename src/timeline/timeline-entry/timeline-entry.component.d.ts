@@ -5,21 +5,21 @@ import { MglTimelineEntryContentComponent } from '../timeline-entry-content/time
 import { MglTimelineEntryHeaderComponent } from '../timeline-entry-header/timeline-entry-header.component';
 export declare class MglTimelineEntryComponent implements AfterViewInit, OnDestroy {
     private elementRef;
-    constructor(elementRef: ElementRef);
+    position: 'left' | 'right';
     private subscriptions;
     focusOnOpen: boolean;
     expanded: boolean;
-    private _alternate;
-    alternate: boolean;
     private _mobile;
-    mobile: boolean;
+    mobile: any;
     changed: EventEmitter<boolean>;
     animationDone: EventEmitter<string>;
     content: MglTimelineEntryContentComponent;
     header: MglTimelineEntryHeaderComponent;
     dot: MglTimelineEntryDotComponent;
     side: MglTimelineEntrySideComponent;
+    constructor(elementRef: ElementRef);
     ngAfterViewInit(): void;
+    alternate: boolean;
     ngOnDestroy(): void;
     collapse(): void;
     expand(): void;

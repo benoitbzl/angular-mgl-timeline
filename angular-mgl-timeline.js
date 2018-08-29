@@ -1,4 +1,4 @@
-import { Component, ContentChild, ContentChildren, ElementRef, EventEmitter, HostBinding, HostListener, Input, NgModule, Output, Renderer } from '@angular/core';
+import { ChangeDetectorRef, Component, ContentChild, ContentChildren, ElementRef, EventEmitter, HostBinding, HostListener, Input, NgModule, Output, Renderer } from '@angular/core';
 import { AnimationBuilder, animate, style } from '@angular/animations';
 
 class MglTimelineEntryHeaderComponent {
@@ -29,24 +29,19 @@ class MglTimelineEntryDotComponent {
      * @param {?} animationBuilder
      * @param {?} elementRef
      * @param {?} renderer
+     * @param {?} changeDetectorRef
      */
-    constructor(animationBuilder, elementRef, renderer) {
+    constructor(animationBuilder, elementRef, renderer, changeDetectorRef) {
         this.animationBuilder = animationBuilder;
         this.elementRef = elementRef;
         this.renderer = renderer;
+        this.changeDetectorRef = changeDetectorRef;
         this._expanded = false;
         this._alternate = false;
         this._mobile = false;
         this._size = 50;
         this.animationDone = new EventEmitter();
-        this.color = 'primary';
-    }
-    /**
-     * @return {?}
-     */
-    ngAfterViewInit() {
-        this.initialStyle = window.getComputedStyle(this.elementRef.nativeElement);
-        this.setStyle();
+        this.clazz = 'primary';
     }
     /**
      * @param {?} size
@@ -104,6 +99,14 @@ class MglTimelineEntryDotComponent {
      */
     get expanded() {
         return this._expanded;
+    }
+    /**
+     * @return {?}
+     */
+    ngAfterViewInit() {
+        this.initialStyle = window.getComputedStyle(this.elementRef.nativeElement);
+        this.setStyle();
+        this.changeDetectorRef.detectChanges();
     }
     /**
      * @return {?}
@@ -201,9 +204,10 @@ MglTimelineEntryDotComponent.ctorParameters = () => [
     { type: AnimationBuilder, },
     { type: ElementRef, },
     { type: Renderer, },
+    { type: ChangeDetectorRef, },
 ];
 MglTimelineEntryDotComponent.propDecorators = {
-    'color': [{ type: Input }, { type: HostBinding, args: ['class',] },],
+    'clazz': [{ type: Input, args: ['class',] }, { type: HostBinding, args: ['class',] },],
     'size': [{ type: Input },],
 };
 
@@ -217,15 +221,8 @@ class MglTimelineEntryContentComponent {
         this.elementRef = elementRef;
         this.animationBuilder = animationBuilder;
         this.renderer = renderer;
-        this._expanded = false;
         this.animationDone = new EventEmitter();
-    }
-    /**
-     * @return {?}
-     */
-    ngAfterViewInit() {
-        this.contentHeight = this.elementRef.nativeElement.scrollHeight;
-        this.setStyle();
+        this._expanded = false;
     }
     /**
      * @param {?} expanded
@@ -242,6 +239,13 @@ class MglTimelineEntryContentComponent {
      */
     get expanded() {
         return this._expanded;
+    }
+    /**
+     * @return {?}
+     */
+    ngAfterViewInit() {
+        this.contentHeight = this.elementRef.nativeElement.scrollHeight;
+        this.setStyle();
     }
     /**
      * @return {?}
@@ -321,9 +325,25 @@ MglTimelineEntryContentComponent.ctorParameters = () => [
 ];
 
 class MglTimelineEntrySideComponent {
-    constructor() {
-        this.alternate = false;
-        this.mobile = false;
+    /**
+     * @param {?} elementRef
+     */
+    constructor(elementRef) {
+        this.elementRef = elementRef;
+    }
+    /**
+     * @param {?} value
+     * @return {?}
+     */
+    set alternate(value) {
+        this.elementRef.nativeElement.classList.toggle('alternate', value);
+    }
+    /**
+     * @param {?} value
+     * @return {?}
+     */
+    set mobile(value) {
+        this.elementRef.nativeElement.classList.toggle('mobile', value);
     }
 }
 MglTimelineEntrySideComponent.decorators = [
@@ -349,11 +369,9 @@ MglTimelineEntrySideComponent.decorators = [
 /**
  * @nocollapse
  */
-MglTimelineEntrySideComponent.ctorParameters = () => [];
-MglTimelineEntrySideComponent.propDecorators = {
-    'alternate': [{ type: HostBinding, args: ['class.alternate',] },],
-    'mobile': [{ type: HostBinding, args: ['class.mobile',] },],
-};
+MglTimelineEntrySideComponent.ctorParameters = () => [
+    { type: ElementRef, },
+];
 
 class MglTimelineEntryComponent {
     /**
@@ -363,7 +381,6 @@ class MglTimelineEntryComponent {
         this.elementRef = elementRef;
         this.subscriptions = [];
         this.focusOnOpen = false;
-        this._alternate = false;
         this._mobile = false;
         this.changed = new EventEmitter();
         this.animationDone = new EventEmitter();
@@ -388,58 +405,33 @@ class MglTimelineEntryComponent {
         return this.dot ? (this.dot.expanded && this.content.expanded) : this.content.expanded;
     }
     /**
-     * @param {?} alternate
+     * @param {?} value
      * @return {?}
      */
-    set alternate(alternate) {
-        this._alternate = alternate;
+    set mobile(value) {
+        this.elementRef.nativeElement.classList.toggle('mobile', value);
         if (this.dot) {
-            this.dot.alternate = alternate;
+            this.dot.mobile = value;
         }
         if (this.side) {
-            this.side.alternate = alternate;
+            this.side.mobile = value;
         }
-    }
-    /**
-     * @return {?}
-     */
-    get alternate() {
-        return this._alternate;
-    }
-    /**
-     * @param {?} mobile
-     * @return {?}
-     */
-    set mobile(mobile) {
-        this._mobile = mobile;
-        if (this.dot) {
-            this.dot.mobile = mobile;
-        }
-        if (this.side) {
-            this.side.mobile = mobile;
-        }
-    }
-    /**
-     * @return {?}
-     */
-    get mobile() {
-        return this._mobile;
     }
     /**
      * @return {?}
      */
     ngAfterViewInit() {
-        setTimeout(() => {
-            if (this.dot) {
-                this.subscriptions.push(this.dot.animationDone.subscribe(event => {
-                    if (event.toState === 'expanded') {
-                        this.content.expanded = true;
-                    }
-                    else {
-                        this.animationDone.emit(event);
-                    }
-                }));
-            }
+        if (this.dot) {
+            this.subscriptions.push(this.dot.animationDone.subscribe(event => {
+                if (event.toState === 'expanded') {
+                    this.content.expanded = true;
+                }
+                else {
+                    this.animationDone.emit(event);
+                }
+            }));
+        }
+        if (this.content) {
             this.subscriptions.push(this.content.animationDone.subscribe(event => {
                 if (this.dot && event.toState === 'collapsed') {
                     this.dot.expanded = false;
@@ -451,7 +443,23 @@ class MglTimelineEntryComponent {
                     this.animationDone.emit(event);
                 }
             }));
-        });
+        }
+    }
+    /**
+     * @param {?} value
+     * @return {?}
+     */
+    set alternate(value) {
+        if (this.position) {
+            value = this.position === 'right';
+        }
+        this.elementRef.nativeElement.classList.toggle('alternate', value);
+        if (this.dot) {
+            this.dot.alternate = value;
+        }
+        if (this.side) {
+            this.side.alternate = value;
+        }
     }
     /**
      * @return {?}
@@ -525,8 +533,7 @@ MglTimelineEntryComponent.ctorParameters = () => [
     { type: ElementRef, },
 ];
 MglTimelineEntryComponent.propDecorators = {
-    'alternate': [{ type: HostBinding, args: ['class.alternate',] },],
-    'mobile': [{ type: HostBinding, args: ['class.mobile',] },],
+    'position': [{ type: Input },],
     'changed': [{ type: Output },],
     'animationDone': [{ type: Output },],
     'content': [{ type: ContentChild, args: [MglTimelineEntryContentComponent,] },],
@@ -538,31 +545,30 @@ MglTimelineEntryComponent.propDecorators = {
 class MglTimelineComponent {
     /**
      * @param {?} elementRef
+     * @param {?} changeDetectorRef
      */
-    constructor(elementRef) {
+    constructor(elementRef, changeDetectorRef) {
         this.elementRef = elementRef;
+        this.changeDetectorRef = changeDetectorRef;
         this.toggle = true;
         this.alternate = true;
         this.start = 'left';
-        this._mobile = false;
         this._focusOnOpen = false;
         this.subscriptions = [];
     }
     /**
-     * @param {?} mobile
+     * @param {?} value
      * @return {?}
      */
-    set mobile(mobile) {
-        if (mobile !== this._mobile) {
-            this.content && this.content.forEach(entry => entry.mobile = mobile);
-        }
-        this._mobile = mobile;
+    set mobile(value) {
+        this.content && this.content.forEach(entry => entry.mobile = value);
+        this.elementRef.nativeElement.classList.toggle('mobile', value);
     }
     /**
      * @return {?}
      */
     get mobile() {
-        return this._mobile;
+        return this.elementRef.nativeElement.classList.contains('mobile');
     }
     /**
      * @param {?} focusOnOpen
@@ -583,7 +589,7 @@ class MglTimelineComponent {
      * @return {?}
      */
     ngOnChanges(simpleChanges) {
-        setTimeout(() => this.updateContent());
+        this.updateContent();
     }
     /**
      * @return {?}
@@ -595,11 +601,11 @@ class MglTimelineComponent {
      * @return {?}
      */
     ngAfterViewInit() {
-        setTimeout(() => {
-            this.mobile = this.elementRef.nativeElement.clientWidth < 640;
+        this.mobile = this.elementRef.nativeElement.clientWidth < 640;
+        setTimeout(() => this.updateContent());
+        this.content.changes.subscribe(changes => {
             this.updateContent();
         });
-        this.content.changes.subscribe(() => setTimeout(() => this.updateContent()));
     }
     /**
      * @return {?}
@@ -626,9 +632,7 @@ class MglTimelineComponent {
      * @return {?}
      */
     onResize(ev) {
-        setTimeout(() => {
-            this.mobile = this.elementRef.nativeElement.clientWidth < 640;
-        });
+        this.mobile = this.elementRef.nativeElement.clientWidth < 640;
     }
 }
 MglTimelineComponent.decorators = [
@@ -672,12 +676,12 @@ MglTimelineComponent.decorators = [
  */
 MglTimelineComponent.ctorParameters = () => [
     { type: ElementRef, },
+    { type: ChangeDetectorRef, },
 ];
 MglTimelineComponent.propDecorators = {
     'toggle': [{ type: Input },],
     'alternate': [{ type: Input },],
     'start': [{ type: Input },],
-    'mobile': [{ type: HostBinding, args: ['class.mobile',] },],
     'focusOnOpen': [{ type: Input },],
     'content': [{ type: ContentChildren, args: [MglTimelineEntryComponent,] },],
     'onResize': [{ type: HostListener, args: ['window:resize',] },],

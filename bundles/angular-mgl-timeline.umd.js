@@ -25,25 +25,20 @@ var MglTimelineEntryDotComponent = /** @class */ (function () {
      * @param {?} animationBuilder
      * @param {?} elementRef
      * @param {?} renderer
+     * @param {?} changeDetectorRef
      */
-    function MglTimelineEntryDotComponent(animationBuilder, elementRef, renderer) {
+    function MglTimelineEntryDotComponent(animationBuilder, elementRef, renderer, changeDetectorRef) {
         this.animationBuilder = animationBuilder;
         this.elementRef = elementRef;
         this.renderer = renderer;
+        this.changeDetectorRef = changeDetectorRef;
         this._expanded = false;
         this._alternate = false;
         this._mobile = false;
         this._size = 50;
         this.animationDone = new core.EventEmitter();
-        this.color = 'primary';
+        this.clazz = 'primary';
     }
-    /**
-     * @return {?}
-     */
-    MglTimelineEntryDotComponent.prototype.ngAfterViewInit = function () {
-        this.initialStyle = window.getComputedStyle(this.elementRef.nativeElement);
-        this.setStyle();
-    };
     Object.defineProperty(MglTimelineEntryDotComponent.prototype, "size", {
         /**
          * @return {?}
@@ -117,6 +112,14 @@ var MglTimelineEntryDotComponent = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    /**
+     * @return {?}
+     */
+    MglTimelineEntryDotComponent.prototype.ngAfterViewInit = function () {
+        this.initialStyle = window.getComputedStyle(this.elementRef.nativeElement);
+        this.setStyle();
+        this.changeDetectorRef.detectChanges();
+    };
     /**
      * @return {?}
      */
@@ -210,9 +213,10 @@ MglTimelineEntryDotComponent.ctorParameters = function () { return [
     { type: animations.AnimationBuilder, },
     { type: core.ElementRef, },
     { type: core.Renderer, },
+    { type: core.ChangeDetectorRef, },
 ]; };
 MglTimelineEntryDotComponent.propDecorators = {
-    'color': [{ type: core.Input }, { type: core.HostBinding, args: ['class',] },],
+    'clazz': [{ type: core.Input, args: ['class',] }, { type: core.HostBinding, args: ['class',] },],
     'size': [{ type: core.Input },],
 };
 var MglTimelineEntryContentComponent = /** @class */ (function () {
@@ -225,16 +229,9 @@ var MglTimelineEntryContentComponent = /** @class */ (function () {
         this.elementRef = elementRef;
         this.animationBuilder = animationBuilder;
         this.renderer = renderer;
-        this._expanded = false;
         this.animationDone = new core.EventEmitter();
+        this._expanded = false;
     }
-    /**
-     * @return {?}
-     */
-    MglTimelineEntryContentComponent.prototype.ngAfterViewInit = function () {
-        this.contentHeight = this.elementRef.nativeElement.scrollHeight;
-        this.setStyle();
-    };
     Object.defineProperty(MglTimelineEntryContentComponent.prototype, "expanded", {
         /**
          * @return {?}
@@ -255,6 +252,13 @@ var MglTimelineEntryContentComponent = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    /**
+     * @return {?}
+     */
+    MglTimelineEntryContentComponent.prototype.ngAfterViewInit = function () {
+        this.contentHeight = this.elementRef.nativeElement.scrollHeight;
+        this.setStyle();
+    };
     /**
      * @return {?}
      */
@@ -326,10 +330,34 @@ MglTimelineEntryContentComponent.ctorParameters = function () { return [
     { type: core.Renderer, },
 ]; };
 var MglTimelineEntrySideComponent = /** @class */ (function () {
-    function MglTimelineEntrySideComponent() {
-        this.alternate = false;
-        this.mobile = false;
+    /**
+     * @param {?} elementRef
+     */
+    function MglTimelineEntrySideComponent(elementRef) {
+        this.elementRef = elementRef;
     }
+    Object.defineProperty(MglTimelineEntrySideComponent.prototype, "alternate", {
+        /**
+         * @param {?} value
+         * @return {?}
+         */
+        set: function (value) {
+            this.elementRef.nativeElement.classList.toggle('alternate', value);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MglTimelineEntrySideComponent.prototype, "mobile", {
+        /**
+         * @param {?} value
+         * @return {?}
+         */
+        set: function (value) {
+            this.elementRef.nativeElement.classList.toggle('mobile', value);
+        },
+        enumerable: true,
+        configurable: true
+    });
     return MglTimelineEntrySideComponent;
 }());
 MglTimelineEntrySideComponent.decorators = [
@@ -342,11 +370,9 @@ MglTimelineEntrySideComponent.decorators = [
 /**
  * @nocollapse
  */
-MglTimelineEntrySideComponent.ctorParameters = function () { return []; };
-MglTimelineEntrySideComponent.propDecorators = {
-    'alternate': [{ type: core.HostBinding, args: ['class.alternate',] },],
-    'mobile': [{ type: core.HostBinding, args: ['class.mobile',] },],
-};
+MglTimelineEntrySideComponent.ctorParameters = function () { return [
+    { type: core.ElementRef, },
+]; };
 var MglTimelineEntryComponent = /** @class */ (function () {
     /**
      * @param {?} elementRef
@@ -355,7 +381,6 @@ var MglTimelineEntryComponent = /** @class */ (function () {
         this.elementRef = elementRef;
         this.subscriptions = [];
         this.focusOnOpen = false;
-        this._alternate = false;
         this._mobile = false;
         this.changed = new core.EventEmitter();
         this.animationDone = new core.EventEmitter();
@@ -383,47 +408,18 @@ var MglTimelineEntryComponent = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(MglTimelineEntryComponent.prototype, "alternate", {
-        /**
-         * @return {?}
-         */
-        get: function () {
-            return this._alternate;
-        },
-        /**
-         * @param {?} alternate
-         * @return {?}
-         */
-        set: function (alternate) {
-            this._alternate = alternate;
-            if (this.dot) {
-                this.dot.alternate = alternate;
-            }
-            if (this.side) {
-                this.side.alternate = alternate;
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(MglTimelineEntryComponent.prototype, "mobile", {
         /**
+         * @param {?} value
          * @return {?}
          */
-        get: function () {
-            return this._mobile;
-        },
-        /**
-         * @param {?} mobile
-         * @return {?}
-         */
-        set: function (mobile) {
-            this._mobile = mobile;
+        set: function (value) {
+            this.elementRef.nativeElement.classList.toggle('mobile', value);
             if (this.dot) {
-                this.dot.mobile = mobile;
+                this.dot.mobile = value;
             }
             if (this.side) {
-                this.side.mobile = mobile;
+                this.side.mobile = value;
             }
         },
         enumerable: true,
@@ -434,18 +430,18 @@ var MglTimelineEntryComponent = /** @class */ (function () {
      */
     MglTimelineEntryComponent.prototype.ngAfterViewInit = function () {
         var _this = this;
-        setTimeout(function () {
-            if (_this.dot) {
-                _this.subscriptions.push(_this.dot.animationDone.subscribe(function (event) {
-                    if (event.toState === 'expanded') {
-                        _this.content.expanded = true;
-                    }
-                    else {
-                        _this.animationDone.emit(event);
-                    }
-                }));
-            }
-            _this.subscriptions.push(_this.content.animationDone.subscribe(function (event) {
+        if (this.dot) {
+            this.subscriptions.push(this.dot.animationDone.subscribe(function (event) {
+                if (event.toState === 'expanded') {
+                    _this.content.expanded = true;
+                }
+                else {
+                    _this.animationDone.emit(event);
+                }
+            }));
+        }
+        if (this.content) {
+            this.subscriptions.push(this.content.animationDone.subscribe(function (event) {
                 if (_this.dot && event.toState === 'collapsed') {
                     _this.dot.expanded = false;
                 }
@@ -456,8 +452,28 @@ var MglTimelineEntryComponent = /** @class */ (function () {
                     _this.animationDone.emit(event);
                 }
             }));
-        });
+        }
     };
+    Object.defineProperty(MglTimelineEntryComponent.prototype, "alternate", {
+        /**
+         * @param {?} value
+         * @return {?}
+         */
+        set: function (value) {
+            if (this.position) {
+                value = this.position === 'right';
+            }
+            this.elementRef.nativeElement.classList.toggle('alternate', value);
+            if (this.dot) {
+                this.dot.alternate = value;
+            }
+            if (this.side) {
+                this.side.alternate = value;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * @return {?}
      */
@@ -498,8 +514,7 @@ MglTimelineEntryComponent.ctorParameters = function () { return [
     { type: core.ElementRef, },
 ]; };
 MglTimelineEntryComponent.propDecorators = {
-    'alternate': [{ type: core.HostBinding, args: ['class.alternate',] },],
-    'mobile': [{ type: core.HostBinding, args: ['class.mobile',] },],
+    'position': [{ type: core.Input },],
     'changed': [{ type: core.Output },],
     'animationDone': [{ type: core.Output },],
     'content': [{ type: core.ContentChild, args: [MglTimelineEntryContentComponent,] },],
@@ -510,13 +525,14 @@ MglTimelineEntryComponent.propDecorators = {
 var MglTimelineComponent = /** @class */ (function () {
     /**
      * @param {?} elementRef
+     * @param {?} changeDetectorRef
      */
-    function MglTimelineComponent(elementRef) {
+    function MglTimelineComponent(elementRef, changeDetectorRef) {
         this.elementRef = elementRef;
+        this.changeDetectorRef = changeDetectorRef;
         this.toggle = true;
         this.alternate = true;
         this.start = 'left';
-        this._mobile = false;
         this._focusOnOpen = false;
         this.subscriptions = [];
     }
@@ -525,17 +541,15 @@ var MglTimelineComponent = /** @class */ (function () {
          * @return {?}
          */
         get: function () {
-            return this._mobile;
+            return this.elementRef.nativeElement.classList.contains('mobile');
         },
         /**
-         * @param {?} mobile
+         * @param {?} value
          * @return {?}
          */
-        set: function (mobile) {
-            if (mobile !== this._mobile) {
-                this.content && this.content.forEach(function (entry) { return entry.mobile = mobile; });
-            }
-            this._mobile = mobile;
+        set: function (value) {
+            this.content && this.content.forEach(function (entry) { return entry.mobile = value; });
+            this.elementRef.nativeElement.classList.toggle('mobile', value);
         },
         enumerable: true,
         configurable: true
@@ -563,8 +577,7 @@ var MglTimelineComponent = /** @class */ (function () {
      * @return {?}
      */
     MglTimelineComponent.prototype.ngOnChanges = function (simpleChanges) {
-        var _this = this;
-        setTimeout(function () { return _this.updateContent(); });
+        this.updateContent();
     };
     /**
      * @return {?}
@@ -577,11 +590,11 @@ var MglTimelineComponent = /** @class */ (function () {
      */
     MglTimelineComponent.prototype.ngAfterViewInit = function () {
         var _this = this;
-        setTimeout(function () {
-            _this.mobile = _this.elementRef.nativeElement.clientWidth < 640;
+        this.mobile = this.elementRef.nativeElement.clientWidth < 640;
+        setTimeout(function () { return _this.updateContent(); });
+        this.content.changes.subscribe(function (changes) {
             _this.updateContent();
         });
-        this.content.changes.subscribe(function () { return setTimeout(function () { return _this.updateContent(); }); });
     };
     /**
      * @return {?}
@@ -609,10 +622,7 @@ var MglTimelineComponent = /** @class */ (function () {
      * @return {?}
      */
     MglTimelineComponent.prototype.onResize = function (ev) {
-        var _this = this;
-        setTimeout(function () {
-            _this.mobile = _this.elementRef.nativeElement.clientWidth < 640;
-        });
+        this.mobile = this.elementRef.nativeElement.clientWidth < 640;
     };
     return MglTimelineComponent;
 }());
@@ -628,12 +638,12 @@ MglTimelineComponent.decorators = [
  */
 MglTimelineComponent.ctorParameters = function () { return [
     { type: core.ElementRef, },
+    { type: core.ChangeDetectorRef, },
 ]; };
 MglTimelineComponent.propDecorators = {
     'toggle': [{ type: core.Input },],
     'alternate': [{ type: core.Input },],
     'start': [{ type: core.Input },],
-    'mobile': [{ type: core.HostBinding, args: ['class.mobile',] },],
     'focusOnOpen': [{ type: core.Input },],
     'content': [{ type: core.ContentChildren, args: [MglTimelineEntryComponent,] },],
     'onResize': [{ type: core.HostListener, args: ['window:resize',] },],
