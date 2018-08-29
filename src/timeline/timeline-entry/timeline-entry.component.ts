@@ -2,7 +2,7 @@ import { MglTimelineEntrySideComponent } from './../timeline-entry-side/timeline
 import { Subscription } from 'rxjs/Subscription';
 import { MglTimelineEntryDotComponent } from './../timeline-entry-dot/timeline-entry-dot.component';
 import {
-  Component, AfterViewInit, Output, EventEmitter, ContentChild, OnDestroy, ElementRef
+  Component, AfterViewInit, Output, EventEmitter, ContentChild, OnDestroy, ElementRef, Input
 } from '@angular/core';
 import { MglTimelineEntryContentComponent } from '../timeline-entry-content/timeline-entry-content.component';
 import { MglTimelineEntryHeaderComponent } from '../timeline-entry-header/timeline-entry-header.component';
@@ -13,6 +13,8 @@ import { MglTimelineEntryHeaderComponent } from '../timeline-entry-header/timeli
   styleUrls: ['./timeline-entry.component.scss']
 })
 export class MglTimelineEntryComponent implements AfterViewInit, OnDestroy {
+
+  @Input() position: 'left' | 'right';
 
   private subscriptions: Subscription[] = [];
 
@@ -81,6 +83,10 @@ export class MglTimelineEntryComponent implements AfterViewInit, OnDestroy {
   }
 
   set alternate(value: boolean) {
+    if (this.position) {
+      value = this.position === 'right';
+    }
+
     this.elementRef.nativeElement.classList.toggle('alternate', value);
     if (this.dot) {
       this.dot.alternate = value;
