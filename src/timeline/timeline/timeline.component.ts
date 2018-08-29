@@ -15,6 +15,9 @@ export class MglTimelineComponent implements AfterViewInit, OnChanges, OnDestroy
   @Input()
   alternate: boolean = true;
 
+  @Input()
+  start: 'left' | 'right' = 'left';
+
   set mobile(value: boolean) {
     this.content && this.content.forEach(entry => entry.mobile = value);
     this.elementRef.nativeElement.classList.toggle('mobile', value)
@@ -71,7 +74,7 @@ export class MglTimelineComponent implements AfterViewInit, OnChanges, OnDestroy
               }
             }));
         }
-        entry.alternate = this.alternate ? index % 2 !== 0 : false;
+        entry.alternate = this.alternate ? index % 2 !== (this.start === 'left' ? 0 : 1) : false;
         entry.mobile = this.mobile;
         entry.focusOnOpen = this.focusOnOpen;
       });
